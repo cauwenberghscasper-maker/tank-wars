@@ -31,6 +31,11 @@ public final class GameConfig {
     public static final float BOT_MIN_SHOT_DELAY = 1.8f;
     public static final float BOT_MAX_SHOT_DELAY = 3.4f;
 
+    public static final float EXIT_BUTTON_X = WORLD_WIDTH * 0.5f - 105f;
+    public static final float EXIT_BUTTON_Y = WORLD_HEIGHT - 88f;
+    public static final float EXIT_BUTTON_WIDTH = 210f;
+    public static final float EXIT_BUTTON_HEIGHT = 58f;
+
     private GameConfig() {
     }
 }

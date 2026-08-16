@@ -14,18 +14,26 @@ public final class GameScreen extends ScreenAdapter {
     private final OrthographicCamera camera = new OrthographicCamera();
     private final Viewport viewport = new FitViewport(
         GameConfig.WORLD_WIDTH, GameConfig.WORLD_HEIGHT, camera);
+    private final DesktopPlayerInput input;
     private final GameWorld world;
     private final GameRenderer renderer;
     private float accumulator;
 
     public GameScreen() {
         viewport.apply(true);
-        world = new GameWorld(new DesktopPlayerInput(viewport));
+        input = new DesktopPlayerInput(viewport);
+        Gdx.input.setInputProcessor(input);
+        world = new GameWorld(input);
         renderer = new GameRenderer(camera);
     }
 
     @Override
     public void render(float delta) {
+        if (input.consumeExitRequested()) {
+            Gdx.app.exit();
+            return;
+        }
+
         accumulator += Math.min(delta, GameConfig.MAX_FRAME_TIME);
         while (accumulator >= GameConfig.FIXED_TIME_STEP) {
             world.updateFixed(GameConfig.FIXED_TIME_STEP);
@@ -41,11 +49,26 @@ public final class GameScreen extends ScreenAdapter {
 
     @Override
     public void show() {
+        Gdx.input.setInputProcessor(input);
         resize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
     }
 
     @Override
+    public void pause() {
+        accumulator = 0f;
+        world.cancelPlayerActions();
+    }
+
+    @Override
+    public void hide() {
+        world.cancelPlayerActions();
+    }
+
+    @Override
     public void dispose() {
+        if (Gdx.input.getInputProcessor() == input) {
+            Gdx.input.setInputProcessor(null);
+        }
         renderer.dispose();
     }
 }

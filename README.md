@@ -34,6 +34,7 @@ Controls:
 - Aim with the mouse.
 - Hold the left mouse button to charge, then release to fire.
 - Press `R` after a match to restart.
+- Click `EXIT` or press `Esc` to leave fullscreen mode and close the game.
 
 The virtual playfield is fixed at 1920×1080 and scales to the desktop window. Gameplay code is in `core`; `lwjgl3` contains only the desktop launcher. Android and iOS launchers are reserved for later milestones.
 

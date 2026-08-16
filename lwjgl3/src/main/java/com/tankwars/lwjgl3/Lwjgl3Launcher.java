@@ -12,11 +12,10 @@ public final class Lwjgl3Launcher {
     public static void main(String[] args) {
         Lwjgl3ApplicationConfiguration configuration = new Lwjgl3ApplicationConfiguration();
         configuration.setTitle("Tank Wars v0.1");
-        configuration.setWindowedMode(1280, 720);
-        configuration.setWindowSizeLimits(960, 540, -1, -1);
+        configuration.setFullscreenMode(Lwjgl3ApplicationConfiguration.getDisplayMode());
+        configuration.setPauseWhenLostFocus(true);
         configuration.useVsync(true);
         configuration.setForegroundFPS(60);
         new Lwjgl3Application(new TankGame(), configuration);
     }
 }
-

@@ -8,7 +8,13 @@ public interface PlayerInput {
 
     Vector2 getAimWorldPosition();
 
-    boolean isFirePressed();
+    FireInputEvent pollFireEvent();
+
+    boolean isFireHeld();
 
     boolean isRestartJustPressed();
+
+    boolean consumeExitRequested();
+
+    void cancelActiveGestures();
 }

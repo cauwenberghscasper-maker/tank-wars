@@ -70,6 +70,9 @@ public final class GameRenderer {
         drawPowerBar(70f, 850f, world.getPlayerController().getChargePercent(), PLAYER);
         drawPowerBar(GameConfig.WORLD_WIDTH - 470f, 850f,
             world.getBotController().getChargePercent(), BOT);
+        shapes.setColor(new Color(0.62f, 0.16f, 0.16f, 1f));
+        shapes.rect(GameConfig.EXIT_BUTTON_X, GameConfig.EXIT_BUTTON_Y,
+            GameConfig.EXIT_BUTTON_WIDTH, GameConfig.EXIT_BUTTON_HEIGHT);
         shapes.end();
     }
 
@@ -114,6 +117,8 @@ public final class GameRenderer {
         shapes.setColor(Color.WHITE);
         shapes.rect(70f, 930f, 400f, 30f);
         shapes.rect(GameConfig.WORLD_WIDTH - 470f, 930f, 400f, 30f);
+        shapes.rect(GameConfig.EXIT_BUTTON_X, GameConfig.EXIT_BUTTON_Y,
+            GameConfig.EXIT_BUTTON_WIDTH, GameConfig.EXIT_BUTTON_HEIGHT);
         shapes.end();
     }
 
@@ -127,7 +132,9 @@ public final class GameRenderer {
             GameConfig.WORLD_WIDTH - 70f, 920f);
         font.draw(batch, "POWER", 70f, 840f);
         drawRightAligned("POWER", GameConfig.WORLD_WIDTH - 70f, 840f);
-        font.draw(batch, "MOVE: A/D or arrows     AIM: mouse     FIRE: hold/release left mouse",
+        drawCenteredAt("EXIT", GameConfig.EXIT_BUTTON_X + GameConfig.EXIT_BUTTON_WIDTH * 0.5f,
+            GameConfig.EXIT_BUTTON_Y + 43f, 1.5f);
+        font.draw(batch, "MOVE: A/D or arrows     AIM: mouse     FIRE: hold/release left mouse     EXIT: Esc",
             70f, 55f);
 
         if (world.getMatchState() == MatchState.COUNTDOWN) {
@@ -141,9 +148,13 @@ public final class GameRenderer {
     }
 
     private void drawCentered(String text, float baselineY, float scale) {
+        drawCenteredAt(text, GameConfig.WORLD_WIDTH * 0.5f, baselineY, scale);
+    }
+
+    private void drawCenteredAt(String text, float centerX, float baselineY, float scale) {
         font.getData().setScale(scale);
         glyphLayout.setText(font, text);
-        font.draw(batch, text, (GameConfig.WORLD_WIDTH - glyphLayout.width) * 0.5f, baselineY);
+        font.draw(batch, text, centerX - glyphLayout.width * 0.5f, baselineY);
         font.getData().setScale(2f);
     }
 

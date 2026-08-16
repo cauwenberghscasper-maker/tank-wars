@@ -65,7 +65,13 @@ public final class GameWorld {
         projectileManager.clear();
     }
 
+    public void cancelPlayerActions() {
+        input.cancelActiveGestures();
+        playerController.cancelActions();
+    }
+
     public void reset() {
+        input.cancelActiveGestures();
         projectileManager.clear();
         playerTank = new Tank(GameConfig.PLAYER_SPAWN_X, Team.PLAYER, MathUtils.PI * 0.25f);
         botTank = new Tank(GameConfig.BOT_SPAWN_X, Team.BOT, MathUtils.PI * 0.75f);
