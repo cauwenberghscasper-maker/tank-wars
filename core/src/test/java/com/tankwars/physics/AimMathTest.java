@@ -24,4 +24,13 @@ class AimMathTest {
         assertEquals(MathUtils.PI,
             AimMath.upperHemisphereAngle(origin, new Vector2(0f, 0f)), 0.001f);
     }
+
+    @Test
+    void smoothAimMovesAtMostTheConfiguredStep() {
+        float result = AimMath.moveTowardUpperHemisphere(0f, MathUtils.PI, 0.25f);
+        assertEquals(0.25f, result, 0.001f);
+
+        result = AimMath.moveTowardUpperHemisphere(result, 0.3f, 0.25f);
+        assertEquals(0.3f, result, 0.001f);
+    }
 }

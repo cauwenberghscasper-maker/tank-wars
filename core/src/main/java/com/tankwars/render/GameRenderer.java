@@ -13,6 +13,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.tankwars.GameConfig;
 import com.tankwars.GameWorld;
 import com.tankwars.MatchState;
+import com.tankwars.control.PlayerController;
 import com.tankwars.model.Projectile;
 import com.tankwars.model.Tank;
 import com.tankwars.model.Team;
@@ -67,7 +68,11 @@ public final class GameRenderer {
 
         drawHealthBar(70f, world.getPlayerTank(), PLAYER);
         drawHealthBar(GameConfig.WORLD_WIDTH - 470f, world.getBotTank(), BOT);
-        drawPowerBar(70f, 850f, world.getPlayerController().getChargePercent(), PLAYER);
+        PlayerController playerController = world.getPlayerController();
+        float playerBarPercent = playerController.isCoolingDown()
+            ? playerController.getCooldownProgress()
+            : playerController.getChargePercent();
+        drawPowerBar(70f, 850f, playerBarPercent, PLAYER);
         drawPowerBar(GameConfig.WORLD_WIDTH - 470f, 850f,
             world.getBotController().getChargePercent(), BOT);
         shapes.setColor(new Color(0.62f, 0.16f, 0.16f, 1f));
@@ -130,7 +135,11 @@ public final class GameRenderer {
             70f, 920f);
         drawRightAligned(world.getBotTank().getHealth() + "/" + world.getBotTank().getMaxHealth(),
             GameConfig.WORLD_WIDTH - 70f, 920f);
-        font.draw(batch, "POWER", 70f, 840f);
+        PlayerController playerController = world.getPlayerController();
+        String playerWeaponStatus = playerController.isCoolingDown()
+            ? "RELOAD " + oneDecimalPlace(playerController.getCooldownRemaining()) + "s"
+            : "POWER";
+        font.draw(batch, playerWeaponStatus, 70f, 840f);
         drawRightAligned("POWER", GameConfig.WORLD_WIDTH - 70f, 840f);
         drawCenteredAt("EXIT", GameConfig.EXIT_BUTTON_X + GameConfig.EXIT_BUTTON_WIDTH * 0.5f,
             GameConfig.EXIT_BUTTON_Y + 43f, 1.5f);
@@ -161,6 +170,11 @@ public final class GameRenderer {
     private void drawRightAligned(String text, float rightX, float baselineY) {
         glyphLayout.setText(font, text);
         font.draw(batch, text, rightX - glyphLayout.width, baselineY);
+    }
+
+    private String oneDecimalPlace(float value) {
+        float roundedUp = MathUtils.ceil(value * 10f) / 10f;
+        return String.valueOf(roundedUp);
     }
 
     public void dispose() {

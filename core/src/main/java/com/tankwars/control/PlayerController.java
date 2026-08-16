@@ -1,6 +1,7 @@
 package com.tankwars.control;
 
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.MathUtils;
 import com.tankwars.GameConfig;
 import com.tankwars.input.FireInputEvent;
 import com.tankwars.input.PlayerInput;
@@ -15,6 +16,7 @@ public final class PlayerController implements TankController {
     private final Vector2 turretPivot = new Vector2();
     private boolean charging;
     private float chargePower = GameConfig.MIN_SHOT_POWER;
+    private float cooldownRemaining;
 
     public PlayerController(Tank tank, PlayerInput input, ProjectileManager projectileManager) {
         this.tank = tank;
@@ -24,22 +26,19 @@ public final class PlayerController implements TankController {
 
     @Override
     public void update(float fixedDelta) {
-        updateAim();
+        cooldownRemaining = Math.max(0f, cooldownRemaining - fixedDelta);
+        updateAim(fixedDelta);
         tank.setMovementDirection(input.getMoveAxis());
 
         FireInputEvent event;
         while ((event = input.pollFireEvent()) != FireInputEvent.NONE) {
-            if (event == FireInputEvent.PRESS && !charging) {
+            if (event == FireInputEvent.PRESS && !charging && cooldownRemaining <= 0f) {
                 beginCharge();
             } else if (event == FireInputEvent.RELEASE && charging) {
                 fireChargedShot();
             } else if (event == FireInputEvent.CANCEL) {
                 cancelCharge();
             }
-        }
-
-        if (input.isFireHeld() && !charging) {
-            beginCharge();
         }
 
         if (charging && input.isFireHeld()) {
@@ -58,6 +57,7 @@ public final class PlayerController implements TankController {
 
     private void fireChargedShot() {
         projectileManager.fire(tank, chargePower);
+        cooldownRemaining = GameConfig.PLAYER_SHOT_COOLDOWN_SECONDS;
         cancelCharge();
     }
 
@@ -66,9 +66,13 @@ public final class PlayerController implements TankController {
         chargePower = GameConfig.MIN_SHOT_POWER;
     }
 
-    public void updateAim() {
+    public void updateAim(float fixedDelta) {
         tank.getTurretPivot(turretPivot);
-        tank.setTurretAngle(AimMath.upperHemisphereAngle(turretPivot, input.getAimWorldPosition()));
+        float targetAngle = AimMath.upperHemisphereAngle(turretPivot, input.getAimWorldPosition());
+        float maximumTurn = MathUtils.degreesToRadians
+            * GameConfig.PLAYER_TURRET_TURN_SPEED_DEGREES * fixedDelta;
+        tank.setTurretAngle(AimMath.moveTowardUpperHemisphere(
+            tank.getTurretAngle(), targetAngle, maximumTurn));
     }
 
     @Override
@@ -86,5 +90,17 @@ public final class PlayerController implements TankController {
             ? (chargePower - GameConfig.MIN_SHOT_POWER)
                 / (GameConfig.MAX_SHOT_POWER - GameConfig.MIN_SHOT_POWER)
             : 0f;
+    }
+
+    public boolean isCoolingDown() {
+        return cooldownRemaining > 0f;
+    }
+
+    public float getCooldownRemaining() {
+        return cooldownRemaining;
+    }
+
+    public float getCooldownProgress() {
+        return 1f - cooldownRemaining / GameConfig.PLAYER_SHOT_COOLDOWN_SECONDS;
     }
 }

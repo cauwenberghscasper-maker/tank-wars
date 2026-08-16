@@ -27,7 +27,7 @@ public final class GameWorld {
 
     public void updateFixed(float fixedDelta) {
         if (matchState == MatchState.COUNTDOWN) {
-            playerController.updateAim();
+            playerController.updateAim(fixedDelta);
             countdownRemaining -= fixedDelta;
             if (countdownRemaining <= 0f) {
                 countdownRemaining = 0f;

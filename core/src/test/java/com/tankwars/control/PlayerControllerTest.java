@@ -1,5 +1,6 @@
 package com.tankwars.control;
 
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.tankwars.GameConfig;
 import com.tankwars.input.FireInputEvent;
@@ -30,7 +31,7 @@ class PlayerControllerTest {
     }
 
     @Test
-    void releaseAndRepressBetweenStepsFiresThenStartsNewCharge() {
+    void releaseAndRepressBetweenStepsFiresButCooldownBlocksNewCharge() {
         Fixture fixture = new Fixture();
         fixture.input.press();
         fixture.controller.update(GameConfig.FIXED_TIME_STEP);
@@ -41,7 +42,8 @@ class PlayerControllerTest {
         fixture.controller.update(GameConfig.FIXED_TIME_STEP);
 
         assertEquals(1, fixture.projectiles.getProjectiles().size);
-        assertTrue(fixture.controller.isCharging());
+        assertFalse(fixture.controller.isCharging());
+        assertTrue(fixture.controller.isCoolingDown());
     }
 
     @Test
@@ -57,11 +59,49 @@ class PlayerControllerTest {
         assertFalse(fixture.controller.isCharging());
     }
 
+    @Test
+    void cooldownRequiresAReleasedAndFreshClickBeforeNextShot() {
+        Fixture fixture = new Fixture();
+        fixture.input.press();
+        fixture.input.release();
+        fixture.controller.update(GameConfig.FIXED_TIME_STEP);
+
+        fixture.input.press();
+        int cooldownSteps = (int) Math.ceil(
+            GameConfig.PLAYER_SHOT_COOLDOWN_SECONDS / GameConfig.FIXED_TIME_STEP) + 1;
+        for (int step = 0; step < cooldownSteps; step++) {
+            fixture.controller.update(GameConfig.FIXED_TIME_STEP);
+        }
+        assertFalse(fixture.controller.isCharging(), "holding during reload must not auto-charge");
+
+        fixture.input.release();
+        fixture.input.press();
+        fixture.controller.update(GameConfig.FIXED_TIME_STEP);
+        assertTrue(fixture.controller.isCharging());
+    }
+
+    @Test
+    void smoothedAimIsFrameRateIndependent() {
+        Fixture oneStep = new Fixture();
+        Fixture manySteps = new Fixture();
+        oneStep.input.aim.set(0f, GameConfig.GROUND_Y + GameConfig.TURRET_PIVOT_HEIGHT);
+        manySteps.input.aim.set(oneStep.input.aim);
+
+        oneStep.controller.update(0.2f);
+        for (int step = 0; step < 20; step++) {
+            manySteps.controller.update(0.01f);
+        }
+
+        assertEquals(oneStep.tank.getTurretAngle(), manySteps.tank.getTurretAngle(), 0.001f);
+        assertEquals(60f, oneStep.tank.getTurretAngle() * MathUtils.radiansToDegrees, 0.01f);
+    }
+
     private static final class Fixture {
         private final FakePlayerInput input = new FakePlayerInput();
         private final ProjectileManager projectiles = new ProjectileManager();
+        private final Tank tank = new Tank(GameConfig.PLAYER_SPAWN_X, Team.PLAYER, 0f);
         private final PlayerController controller = new PlayerController(
-            new Tank(GameConfig.PLAYER_SPAWN_X, Team.PLAYER, 0f), input, projectiles);
+            tank, input, projectiles);
     }
 
     private static final class FakePlayerInput implements PlayerInput {

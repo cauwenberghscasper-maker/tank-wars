@@ -33,6 +33,7 @@ Controls:
 - Move with `A`/`D` or the left/right arrow keys.
 - Aim with the mouse.
 - Hold the left mouse button to charge, then release to fire.
+- Wait for the reload timer before starting the next shot.
 - Press `R` after a match to restart.
 - Click `EXIT` or press `Esc` to leave fullscreen mode and close the game.
 

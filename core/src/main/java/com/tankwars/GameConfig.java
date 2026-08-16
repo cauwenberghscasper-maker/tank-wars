@@ -15,6 +15,7 @@ public final class GameConfig {
     public static final float TANK_SPEED = 270f;
     public static final float TURRET_PIVOT_HEIGHT = 61f;
     public static final float TURRET_LENGTH = 112f;
+    public static final float PLAYER_TURRET_TURN_SPEED_DEGREES = 300f;
     public static final int MAX_HEALTH = 100;
     public static final float PLAYER_SPAWN_X = 265f;
     public static final float BOT_SPAWN_X = WORLD_WIDTH - 265f;
@@ -24,6 +25,7 @@ public final class GameConfig {
     public static final float MIN_SHOT_POWER = 430f;
     public static final float MAX_SHOT_POWER = 1180f;
     public static final float CHARGE_RATE = 410f;
+    public static final float PLAYER_SHOT_COOLDOWN_SECONDS = 1.25f;
 
     public static final float COUNTDOWN_SECONDS = 3f;
     public static final float BOT_AIM_ERROR_DEGREES = 4f;

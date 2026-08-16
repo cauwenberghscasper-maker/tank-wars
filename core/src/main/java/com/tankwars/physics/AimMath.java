@@ -16,4 +16,16 @@ public final class AimMath {
         }
         return MathUtils.clamp(MathUtils.atan2(dy, dx), 0f, MathUtils.PI);
     }
+
+    /** Moves toward a target without wrapping through the lower hemisphere. */
+    public static float moveTowardUpperHemisphere(
+        float currentAngle, float targetAngle, float maximumDelta) {
+        float current = MathUtils.clamp(currentAngle, 0f, MathUtils.PI);
+        float target = MathUtils.clamp(targetAngle, 0f, MathUtils.PI);
+        float difference = target - current;
+        if (Math.abs(difference) <= maximumDelta) {
+            return target;
+        }
+        return current + Math.signum(difference) * Math.max(0f, maximumDelta);
+    }
 }
