@@ -22,6 +22,8 @@ public final class BotController implements TankController {
     private float shotTimer;
     private float movementDirection;
     private boolean charging;
+    private boolean shotFiredThisTurn;
+    private boolean shotFiredEvent;
     private float chargePower;
     private float plannedPower;
     private float plannedAngle;
@@ -43,6 +45,10 @@ public final class BotController implements TankController {
 
     @Override
     public void update(float fixedDelta) {
+        if (shotFiredThisTurn) {
+            tank.stop();
+            return;
+        }
         updateMovement(fixedDelta);
 
         if (charging) {
@@ -50,6 +56,8 @@ public final class BotController implements TankController {
             chargePower = Math.min(plannedPower, chargePower + GameConfig.CHARGE_RATE * fixedDelta);
             if (chargePower >= plannedPower) {
                 projectileManager.fire(tank, chargePower);
+                shotFiredThisTurn = true;
+                shotFiredEvent = true;
                 charging = false;
                 chargePower = GameConfig.MIN_SHOT_POWER;
                 shotTimer = randomRange(GameConfig.BOT_MIN_SHOT_DELAY, GameConfig.BOT_MAX_SHOT_DELAY);
@@ -89,7 +97,7 @@ public final class BotController implements TankController {
         targetPoint.set(target.getPosition().x, target.getPosition().y + target.getHeight() * 0.5f);
         float horizontalDistance = Math.abs(targetPoint.x - pivot.x);
         float idealPower = (float) Math.sqrt(horizontalDistance * -GameConfig.GRAVITY) * 1.12f;
-        idealPower = MathUtils.clamp(idealPower, 770f, GameConfig.MAX_SHOT_POWER * 0.91f);
+        idealPower = MathUtils.clamp(idealPower, 850f, GameConfig.MAX_SHOT_POWER * 0.96f);
 
         float angle = targetPoint.x < pivot.x ? MathUtils.PI * 0.75f : MathUtils.PI * 0.25f;
         launchPoint.set(pivot);
@@ -134,5 +142,20 @@ public final class BotController implements TankController {
             ? (chargePower - GameConfig.MIN_SHOT_POWER)
                 / (GameConfig.MAX_SHOT_POWER - GameConfig.MIN_SHOT_POWER)
             : 0f;
+    }
+
+    public void beginTurn() {
+        shotFiredThisTurn = false;
+        shotFiredEvent = false;
+        charging = false;
+        chargePower = GameConfig.MIN_SHOT_POWER;
+        shotTimer = randomRange(1.1f, 2.1f);
+        movementTimer = randomRange(0.7f, 1.5f);
+    }
+
+    public boolean consumeShotFiredEvent() {
+        boolean fired = shotFiredEvent;
+        shotFiredEvent = false;
+        return fired;
     }
 }

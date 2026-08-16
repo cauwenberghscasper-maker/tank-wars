@@ -8,6 +8,7 @@ import com.tankwars.GameConfig;
 import com.tankwars.model.Projectile;
 import com.tankwars.model.Tank;
 import com.tankwars.model.Team;
+import com.tankwars.world.Terrain;
 
 public final class ProjectileManager {
     private final Array<Projectile> projectiles = new Array<Projectile>();
@@ -25,7 +26,8 @@ public final class ProjectileManager {
         projectiles.add(new Projectile(temporaryPosition, temporaryVelocity, source.getTeam()));
     }
 
-    public void updateFixed(float fixedDelta, Tank player, Tank bot) {
+    public void updateFixed(
+        float fixedDelta, Tank player, Tank bot, Terrain terrain, float worldHeight) {
         for (int index = projectiles.size - 1; index >= 0; index--) {
             Projectile projectile = projectiles.get(index);
             projectile.updateFixed(fixedDelta);
@@ -37,7 +39,8 @@ public final class ProjectileManager {
                     GameConfig.PROJECTILE_RADIUS, target.getBounds(temporaryBounds))) {
                 target.takeDamage(GameConfig.PROJECTILE_DAMAGE);
                 projectile.destroy();
-            } else if (hitGround(projectile) || leftPlayableWorld(projectile)) {
+            } else if (hitGround(projectile, terrain)
+                || leftPlayableWorld(projectile, terrain.getWidth(), worldHeight)) {
                 projectile.destroy();
             }
 
@@ -47,14 +50,15 @@ public final class ProjectileManager {
         }
     }
 
-    private boolean hitGround(Projectile projectile) {
-        return projectile.getPosition().y - GameConfig.PROJECTILE_RADIUS <= GameConfig.GROUND_Y;
+    private boolean hitGround(Projectile projectile, Terrain terrain) {
+        return projectile.getPosition().y - GameConfig.PROJECTILE_RADIUS
+            <= terrain.getHeightAt(projectile.getPosition().x);
     }
 
-    private boolean leftPlayableWorld(Projectile projectile) {
+    private boolean leftPlayableWorld(Projectile projectile, float worldWidth, float worldHeight) {
         Vector2 position = projectile.getPosition();
-        return position.x < -100f || position.x > GameConfig.WORLD_WIDTH + 100f
-            || position.y > GameConfig.WORLD_HEIGHT + 300f;
+        return position.x < -100f || position.x > worldWidth + 100f
+            || position.y > worldHeight + 300f;
     }
 
     public Array<Projectile> getProjectiles() {

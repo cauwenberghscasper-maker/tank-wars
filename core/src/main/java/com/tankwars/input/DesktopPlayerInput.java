@@ -12,6 +12,7 @@ import java.util.Deque;
 /** Keyboard/mouse implementation used by the desktop development target. */
 public final class DesktopPlayerInput extends InputAdapter implements PlayerInput {
     private final Viewport viewport;
+    private final Viewport uiViewport;
     private final Vector2 aimWorldPosition = new Vector2();
     private final Vector2 pointerWorldPosition = new Vector2();
     private final Deque<FireInputEvent> fireEvents = new ArrayDeque<FireInputEvent>();
@@ -19,8 +20,9 @@ public final class DesktopPlayerInput extends InputAdapter implements PlayerInpu
     private boolean exitRequested;
     private int exitPointer = -1;
 
-    public DesktopPlayerInput(Viewport viewport) {
+    public DesktopPlayerInput(Viewport viewport, Viewport uiViewport) {
         this.viewport = viewport;
+        this.uiViewport = uiViewport;
     }
 
     @Override
@@ -140,7 +142,7 @@ public final class DesktopPlayerInput extends InputAdapter implements PlayerInpu
 
     private boolean isExitButton(int screenX, int screenY) {
         pointerWorldPosition.set(screenX, screenY);
-        viewport.unproject(pointerWorldPosition);
+        uiViewport.unproject(pointerWorldPosition);
         return UiHitAreas.isExitButton(pointerWorldPosition.x, pointerWorldPosition.y);
     }
 }

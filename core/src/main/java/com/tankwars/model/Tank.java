@@ -17,8 +17,8 @@ public final class Tank {
     private int health;
     private float turretAngle;
 
-    public Tank(float x, Team team, float initialTurretAngle) {
-        this.position.set(x, GameConfig.GROUND_Y);
+    public Tank(float x, float y, Team team, float initialTurretAngle) {
+        this.position.set(x, y);
         this.team = team;
         this.width = GameConfig.TANK_WIDTH;
         this.height = GameConfig.TANK_HEIGHT;
@@ -28,11 +28,14 @@ public final class Tank {
         setTurretAngle(initialTurretAngle);
     }
 
-    public void update(float delta) {
+    public void update(float delta, float worldWidth) {
         position.mulAdd(velocity, delta);
         float halfWidth = width * 0.5f;
-        position.x = MathUtils.clamp(position.x, halfWidth, GameConfig.WORLD_WIDTH - halfWidth);
-        position.y = GameConfig.GROUND_Y;
+        position.x = MathUtils.clamp(position.x, halfWidth, worldWidth - halfWidth);
+    }
+
+    public void setGroundHeight(float groundHeight) {
+        position.y = groundHeight;
     }
 
     public void setMovementDirection(float direction) {

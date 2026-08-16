@@ -15,8 +15,9 @@ public final class PlayerController implements TankController {
     private final ProjectileManager projectileManager;
     private final Vector2 turretPivot = new Vector2();
     private boolean charging;
+    private boolean shotFiredThisTurn;
+    private boolean shotFiredEvent;
     private float chargePower = GameConfig.MIN_SHOT_POWER;
-    private float cooldownRemaining;
 
     public PlayerController(Tank tank, PlayerInput input, ProjectileManager projectileManager) {
         this.tank = tank;
@@ -26,13 +27,12 @@ public final class PlayerController implements TankController {
 
     @Override
     public void update(float fixedDelta) {
-        cooldownRemaining = Math.max(0f, cooldownRemaining - fixedDelta);
         updateAim(fixedDelta);
         tank.setMovementDirection(input.getMoveAxis());
 
         FireInputEvent event;
         while ((event = input.pollFireEvent()) != FireInputEvent.NONE) {
-            if (event == FireInputEvent.PRESS && !charging && cooldownRemaining <= 0f) {
+            if (event == FireInputEvent.PRESS && !charging && !shotFiredThisTurn) {
                 beginCharge();
             } else if (event == FireInputEvent.RELEASE && charging) {
                 fireChargedShot();
@@ -57,7 +57,8 @@ public final class PlayerController implements TankController {
 
     private void fireChargedShot() {
         projectileManager.fire(tank, chargePower);
-        cooldownRemaining = GameConfig.PLAYER_SHOT_COOLDOWN_SECONDS;
+        shotFiredThisTurn = true;
+        shotFiredEvent = true;
         cancelCharge();
     }
 
@@ -92,15 +93,19 @@ public final class PlayerController implements TankController {
             : 0f;
     }
 
-    public boolean isCoolingDown() {
-        return cooldownRemaining > 0f;
+    public void beginTurn() {
+        shotFiredThisTurn = false;
+        shotFiredEvent = false;
+        cancelCharge();
     }
 
-    public float getCooldownRemaining() {
-        return cooldownRemaining;
+    public boolean consumeShotFiredEvent() {
+        boolean fired = shotFiredEvent;
+        shotFiredEvent = false;
+        return fired;
     }
 
-    public float getCooldownProgress() {
-        return 1f - cooldownRemaining / GameConfig.PLAYER_SHOT_COOLDOWN_SECONDS;
+    public boolean hasFiredThisTurn() {
+        return shotFiredThisTurn;
     }
 }

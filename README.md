@@ -33,11 +33,13 @@ Controls:
 - Move with `A`/`D` or the left/right arrow keys.
 - Aim with the mouse.
 - Hold the left mouse button to charge, then release to fire.
-- Wait for the reload timer before starting the next shot.
+- Player and bot alternate turns, with exactly one shot allowed per turn.
 - Press `R` after a match to restart.
 - Click `EXIT` or press `Esc` to leave fullscreen mode and close the game.
 
-The virtual playfield is fixed at 1920×1080 and scales to the desktop window. Gameplay code is in `core`; `lwjgl3` contains only the desktop launcher. Android and iOS launchers are reserved for later milestones.
+The viewport is fixed at 1920×1080 and scrolls across a 4200-unit curved battlefield. Gameplay code is in `core`; `lwjgl3` contains only the desktop launcher. Android and iOS launchers are reserved for later milestones.
+
+Environment art is theme-based and loaded through `GameAssets`. Add a folder under `assets/environment`, register its paths and palette in `EnvironmentThemes`, then point a map at that theme ID. This keeps art upgrades independent from terrain, turn, and collision logic. Asset provenance and the replacement contract are documented in `assets/environment/README.md`.
 
 ## Test the project
 
