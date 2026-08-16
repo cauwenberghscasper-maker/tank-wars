@@ -1,0 +1,4 @@
+rootProject.name = 'tank-wars'
+
+include 'core', 'lwjgl3'
+

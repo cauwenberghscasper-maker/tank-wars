@@ -1,0 +1,13 @@
+ext {
+    gdxVersion = '1.14.2'
+}
+
+allprojects {
+    group = 'com.tankwars'
+    version = '0.1.0'
+
+    repositories {
+        mavenCentral()
+    }
+}
+

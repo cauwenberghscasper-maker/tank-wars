@@ -1,0 +1,19 @@
+plugins {
+    id 'java-library'
+}
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+}
+
+dependencies {
+    api "com.badlogicgames.gdx:gdx:$gdxVersion"
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.11.4'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+
